@@ -83,16 +83,23 @@
       output.innerHTML = "Fetching scheme summary...";
 
       try {
-        const res = await fetch("http://localhost:5000/api/fetch?url=" + encodeURIComponent(input.value));
+        const res = await fetch("http://127.0.0.1:5000/api/fetch?url=" + encodeURIComponent(input.value));
         const data = await res.json();
+
+        if(data.error){
+          output.innerHTML = `<span style="color:red">Error:${data.error}</span>`;
+          return;
+        }
 
         output.innerHTML = `
           <h4>Who can apply?</h4>
-          <ul>${data.eligibility.map(e => `<li>${e}</li>`).join("")}</ul>
+          <ul>${(data.eligibility||["Not found"]).map(e => `<li>${e}</li>`).join("")}</ul>
           <h4>What you need</h4>
-          <ul>${data.documents.map(d => `<li>${d}</li>`).join("")}</ul>
+          <ul>${(data.documents||["Not found"]).map(d => `<li>${d}</li>`).join("")}</ul>
+          <h4>how to apply</h4>
+          <ul>${(data.howto||[]).map(h =>`<li>${h}</li>`).join("")}</ul>
           <h4>Where to apply</h4>
-          <ul>${data.links.map(l => `<li><a href='${l}' target='_blank'>${l}</a></li>`).join("")}</ul>
+          <ul>${(data.links||[]).map(l => `<li><a href='${l}' target='_blank'>${l}</a></li>`).join("")}</ul>
         `;
       } catch (err) {
         output.innerHTML = `<span style="color:red">Error: ${err.message}</span>`;
